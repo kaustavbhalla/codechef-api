@@ -10,4 +10,5 @@ dependencies = [
     "httpx>=0.28.1",
     "lxml>=6.0.2",
     "pydantic>=2.12.5",
+    "uvicorn>=0.42.0",
 ]

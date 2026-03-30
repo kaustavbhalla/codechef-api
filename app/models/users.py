@@ -11,12 +11,12 @@ class typeOfUser(str, Enum):
 class User(BaseModel):
     name: str
     userName: str
-    country: Optional[str]
-    typeOf: typeOfUser
-    institution: Optional[str]
-    rating: Optional[int]
-    division: Optional[str]
+    country: Optional[str] = None
+    typeOf: typeOfUser = typeOfUser.Other
+    institution: Optional[str] = None
+    rating: Optional[int] = 0
+    division: Optional[str] = "Unrated"
     stars: Optional[int] = 0
-    globalRank: Optional[int]
-    countryRank: Optional[int]
+    globalRank: Optional[int] = -1
+    countryRank: Optional[int] = -1
     contestsParticipated: Optional[int] = 0

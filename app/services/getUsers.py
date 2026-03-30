@@ -1,6 +1,6 @@
 import httpx
 import asyncio
-from ..models.users import User
+from ..models.users import User, typeOfUser
 from bs4 import BeautifulSoup
 
 async def getUserDataInHTML(username: str) -> str:
@@ -17,7 +17,7 @@ async def getUserDataInHTML(username: str) -> str:
 
     return response.text
 
-def parseHTMLAndExtractData(html: str, username: str):
+def parseHTMLAndExtractData(html: str, username: str) -> User:
     soup = BeautifulSoup(html, "lxml")
     
     #Getting users name
@@ -50,10 +50,59 @@ def parseHTMLAndExtractData(html: str, username: str):
 
     
     #Getting user rating
-    ratingFl = soup.select_one("div.rating-number").text.strip()
+    rating = soup.select_one("div.rating-number")
+    ratingFl = int(rating.text.strip()) if rating else 0
     
     #Calculating division
+    divFl = ""
+    if ratingFl >= 2000:
+        divFl = "Division 1"
+    elif ratingFl < 2000 and ratingFl >= 1600:
+        divFl = "Division 2"
+    elif ratingFl < 1600 and ratingFl >= 1400:
+        divFl = "Division 3"
+    elif ratingFl < 1400:
+        divFl = "Division 4"
 
+    #calculating stars
+    stars = soup.select_one("span.rating")
+    stars_text = stars.text.strip() if stars else "0"
+    starsFl = int(stars_text.replace("★", "").strip())
+
+    ranks = {}
+    for li in soup.select("div.rating-ranks ul.inline-list li"):
+        value = li.select_one("strong").text.strip()
+        text = li.get_text(strip=True)
+        if "Global Rank" in text:
+            ranks["global_rank"] = int(value)
+        elif "Country Rank" in text:
+            ranks["country_rank"] = int(value)
+
+    globalRankFl = ranks.get("global_rank", None) 
+    countryRankFl = ranks.get("country_rank", None)
+
+    #contests participated
+    noOfContests = soup.select_one("div.contest-participated-count b")
+    noOfContestsFl = noOfContests.text.strip() if noOfContests else None
+    print(noOfContestsFl)
+
+
+
+    #final return
+
+    return User(
+        name=name,
+        userName=username,
+        country=countryFl,
+        typeOf=typeOfUser(globaltypeFl) if globaltypeFl else typeOfUser.Other,
+        institution=globalinstiFl,
+        rating=ratingFl,
+        division=divFl,
+        stars=starsFl,
+        globalRank=globalRankFl,
+        countryRank=countryRankFl,
+        contestsParticipated=noOfContestsFl
+    )
 
 async def main():
     resp = await getUserDataInHTML("potato167")

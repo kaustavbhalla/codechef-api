@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routers import users
+from app.routers import contests
 
 app = FastAPI(
     title="CodeChef API",
@@ -8,6 +9,7 @@ app = FastAPI(
 )
 
 app.include_router(users.router, prefix="/api/v1", tags=["Users"])
+app.include_router(contests.router, prefix="/api/v1/contests", tags=["Contests"])
 
 @app.get("/")
 async def root():
